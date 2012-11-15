@@ -8,70 +8,102 @@ FILE="mysqldump-${DAY}-${TIME}.sql"
 
 ##			Local	Configuration			##
 LOCALHOST="127.0.0.1"
-REMOTE_SERVER_KEY="/Users/matt/.ssh/vinport.pem"
+LOCAL_KEY_DIRECTORY="/Users/matt/.ssh/"
+REMOTE_SERVER_KEY="${LOCAL_KEY_DIRECTORY}gassy.pem"
 SSH_TUNNEL_PORT="3318"
 TUNNEL_PORT="3312"
 TUNNEL_SLEEP="20"
 LOCAL_SERVER_USER="root"
-#DEV_PATH="/var/www/git/vinport/dev/"
-#STAGING_PATH="/var/www/git/vinport/staging/"
-#PRODUCTION_PATH="/var/www/git/vinport/magento/"
-
-DEV_PATH="/var/www/html/dev/"
-STAGING_PATH="/var/www/html/staging/"
-PRODUCTION_PATH="/var/www/html/magento/"
+DEV_PATH="/var/www/dev/"
+STAGING_PATH="/var/www/staging/"
+PRODUCTION_PATH="/var/www/git/gas/"
+EC2_API_TOKEN='A80325AA4DAB186C80828ED5138633E3F49160D9'
 ##			Remote	Server	Configuration		##
-REMOTE_SERVER_IP="vinport.com"
+REMOTE_SERVER_IP="dev.gatherandsave.com"
 REMOTE_SERVER_USER="root"
-REMOTE_DEV_PATH="/var/www/git/vinport/magento/"
-REMOTE_STAGING_PATH="/var/www/html/staging/"
-REMOTE_PRODUCTION_PATH="/var/www/html/magento/"
+REMOTE_DEV_PATH="/var/www/dev/"
+REMOTE_STAGING_PATH="/var/www/staging/"
+REMOTE_PRODUCTION_PATH="/var/www/git/gas/"
 REMOTE_PORT="3306"	#	Mysql Port
 REMOTE_SSH_PORT="22"
-REMOTE_GIT_PATH="/var/www/git/vinport/"
+REMOTE_GIT_PATH="/var/www/git/gas/"
 
 ##			Git	Configuration			##
-GIT_PATH="/var/www/git/vinport/magento/"
-GIT_ROOT_PATH="/var/www/git/vinport/"
-
+GIT_PATH="/Users/matt/Documents/Git/"
+GIT_ROOT_PATH="/Users/matt/Documents/Git/gas/"
 
 ##			URL	Configuration			##
-DEV_URL="http://dev.vinport.com/"
-STAGING_URL="http://staging.vinport.com/"
-PRODUCTION_URL="http://www.vinport.com/"
-
-
+DEV_URL="http://dev.gatherandsave.com/"
+STAGING_URL="http://staging.gatherandsave.com/"
+PRODUCTION_URL="http://www.gatherandsave.com/"
 
 ##			MYSQL	Configuration			##
 MYSQL_PASSW0RD="password"
 MYSQL_USER="root"
-MYSQL_DUMP_DIR="/Users/matt/.ssh/vinport/mysql_dumps/"
+MYSQL_DUMP_DIR="/tmp/mysql_dumps";
 
-DEV_USER="magento_dev"
-DEV_PASSWORD="magento_dev"
-DEV_DB="magento_dev"
+DEV_USER="gassy_dev"
+DEV_PASSWORD="password"
+DEV_DB="gassy_dev"
 
-STAGING_USER="magento_staging"
-STAGING_PASSWORD="magento_staging"
-STAGING_DB="magento_staging"
+STAGING_USER="gassy_staging"
+STAGING_PASSWORD="password"
+STAGING_DB="gassy_staging"
 
-PRODUCTION_USER="magento"
-PRODUCTION_PASSWORD="magento"
-PRODUCTION_DB="magento"
-SSH_KEYS=('/Users/matt/.ssh/babeebook.pem' '/Users/matt/.ssh/vinport.pem' '/Users/matt/.ssh/mytowns.pem' '/Users/matt/.ssh/mhcmarlins.pem' '/Users/matt/.ssh/boothify_new.pem' '/Users/matt/.ssh/gasapp.pem')
-SSH_PORTS=('22' '22' '22' '22' '22' '22')
-SSH_USERS=('root' 'root' 'root' 'serveradmin%prolificstaging.com' 'root' 'root')
-Servers=('babeebook.com' 'vinport.com' '23.23.86.212' 'prolificstaging.com' 'boothify.me' 'dev.gas.vg') 
+PRODUCTION_USER="gassy"
+PRODUCTION_PASSWORD="password"
+PRODUCTION_DB="gassy"
+
+SSH_KEYS=("${LOCAL_KEY_DIRECTORY}babeebook.pem" 
+	"${LOCAL_KEY_DIRECTORY}vinport.pem" 
+	"${LOCAL_KEY_DIRECTORY}mytowns.pem"
+	"${LOCAL_KEY_DIRECTORY}mhcmarlins.pem" 
+	"${LOCAL_KEY_DIRECTORY}boothify_new.pem" 
+	"${LOCAL_KEY_DIRECTORY}gasapp.pem")
+SSH_PORTS=('22' 
+		'22' 
+		'22' 
+		'22' 
+		'22' 
+		'22')
+SSH_USERS=('root' 
+		'root' 
+		'root' 
+		'serveradmin%prolificstaging.com' 
+		'root' 
+		'root')
+Servers=('babeebook.com' 
+	'vinport.com' 
+	'23.23.86.212'  
+	'prolificstaging.com' 
+	'boothify.me' 
+	'dev.gas.vg') 
 #'ec2-23-23-26-4.compute-1.amazonaws.com')
+##			PROBABLY DON'TOUCH BELOW UNLESS YOU KNOW WHAT YOU'RE DOING		##
+# Text color variables
+txtund=$(tput sgr 0 1)          # Underline
+txtbld=$(tput bold)             # Bold
+bldred=${txtbld}$(tput setaf 1) #  red
+bldblu=${txtbld}$(tput setaf 4) #  blue
+bldwht=${txtbld}$(tput setaf 7) #  white
+txtrst=$(tput sgr0)             # Reset
+info=${bldwht}*${txtrst}        # Feedback
+pass=${bldblu}*${txtrst}
+warn=${bldred}*${txtrst}
+ques=${bldblu}?${txtrst}
 
 ##			Functions				##
 
 function connect_remote {
+#SHOW Server List
 sub_menu "${Servers[@]}"
 ser=$?
+#TODO: Validate Input
 	ssh -i ${SSH_KEYS[$ser]} -l ${SSH_USERS[$ser]} ${Servers[$ser]} -p ${SSH_PORTS[$ser]}
 }
 function dump_db {
+#TODO: DISPLAY USER INFO + DIR + FILE then confirm with option to manually input username password, dir,file
+#TODO: Ability to cancel
         echo dumping mysql
         mysqldump -u$MYSQL_USER -p$MYSQL_PASSW0RD --all-databases > $MYSQL_DUMP_DIR$FILE
         echo dump complete: $MYSQL_DUMP_DIR$FILE
@@ -87,10 +119,12 @@ function import_db {
                 echo invalid file extension
                 exit 2
         fi
+#TODO: DISPLAY USER INFO + DIR + FILE then confirm with option to manually input username password, file
         echo importing db
         mysql -u$MYSQL_USER -p$MYSQL_PASSW0RD < $file1
         echo import done
 	echo restarting db
+#TODO: CHECK OS
 #ubuntu
 #	service mysql restart
 #centos service mysqld restart
@@ -98,6 +132,7 @@ function import_db {
 	echo done
 }
 function get_remote_db {
+#TODO: DISPLAY CONNECTION Info then confirm with option to manually input 
 	echo creating ssh tunnel $TUNNEL_PORT:$LOCALHOST:$REMOTE_PORT
 	ssh -f -L$TUNNEL_PORT:localhost:$REMOTE_PORT $REMOTE_SERVER_USER@$REMOTE_SERVER_IP -i $REMOTE_SERVER_KEY sleep $TUNNEL_SLEEP
 # dump through tunnel
@@ -106,6 +141,7 @@ function get_remote_db {
 	echo dump complete: $MYSQL_DUMP_DIR$FILE
 }
 function send_db_to_remote {
+#TODO: DISPLAY CONNECTION Info then confirm with option to manually input 
         echo -n enter file '> '
         read -e file1
         if [ ! -r $file1 ];then
@@ -125,6 +161,7 @@ function send_db_to_remote {
 #	mysql -P TUNNEL_PORT -h $LOCALHOST -u$MYSQL_USER -p$MYSQL_PASSW0RD < $file1
 }
 function send_remote_cmd {
+#TODO: DISPLAY CONNECTION Info then confirm with option to manually input 
 	echo -n enter local port '> '
 	read tport
 	echo -n enter cmd '> '	
@@ -140,10 +177,12 @@ function send_remote_cmd {
 }
 
 function set_hosts_file_local {
+#TODO: DISPLAY URLS then confirm with option to manually enter urls 
 	unset_hosts_file_local
 	sudo echo -e '127.0.0.1\tvinport.com\n127.0.0.1\twww.vinport.com\n127.0.0.1\tdev.vinport.com\n127.0.0.1\tstaging.vinport.com\n127.0.0.1\tbeta.vinport.com\n127.0.0.1\tsample.vinport.com\n' >> /etc/hosts
 }
 function unset_hosts_file_local {
+#TODO: DISPLAY KEYWORD(URL) then confirm with option to manually enter urls 
 	sudo sed "/vinport/d" /etc/hosts -i
 }
 function save_to_git { 
@@ -154,6 +193,7 @@ function save_to_git {
 	git push ; 
 } 
 function send_file_to_remote {
+#TODO: DISPLAY CONNECTION Info then confirm with option to manually input 
 	echo -n local file/dir '> '
 	read -e local_file
 	echo -n remote_file/dir '> '
@@ -162,6 +202,7 @@ function send_file_to_remote {
 	scp -i $REMOTE_SERVER_KEY $local_file $REMOTE_SERVER_USER@$REMOTE_SERVER_IP:$remote_file
 }
 function retrieve_remote_file {
+#TODO: DISPLAY CONNECTION Info then confirm with option to manually input 
 	echo -n local file/dir '> '
 	read -e local_file
 	echo -n remote_file/dir '> '
@@ -170,6 +211,7 @@ function retrieve_remote_file {
 }
 function set_dev {
 #	update local mysql db, set the urls, update config.xml/local.xml to use correct mysql user+pass+db
+# this is custom for vinport/magento
 
 table='vp_core_config_data'
 query="UPDATE $table SET value='$DEV_URL' WHERE path in ('web/unsecure/base_url','web/sercure/base_url')";
@@ -183,6 +225,7 @@ configxml=$DEV_PATH'app/etc/config.xml'
 }
 
 function set_staging {
+# this is custom for vinport/magento
 table='vp_core_config_data'
 query="UPDATE $table SET value='$STAGING_URL' WHERE path in ('web/unsecure/base_url','web/sercure/base_url')";
 	mysql -u$MYSQL_USER -p$MYSQL_PASSW0RD -e "$query" $STAGING_DB
@@ -224,7 +267,7 @@ function stage_to_production {
 	rsync -vr $REMOTE_STAGING_PATH $REMOTE_PRODUCTION_PATH
 }
 function setup_ec2_command_line_tools {
-	tools_url='http://www.amazon.com/gp/redirect.html/ref=aws_rc_ec2tools?location=http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip&token=A80325AA4DAB186C80828ED5138633E3F49160D9'
+	tools_url="http://www.amazon.com/gp/redirect.html/ref=aws_rc_ec2tools?location=http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip&token=${EC2_API_TOKEN}"
 	path="/var/www/"
 	cd $path
 	wget "$tools_url" -O ec2-api-tools.zip
@@ -278,13 +321,19 @@ function setup_ec2_command_line_tools {
 function run_instance {
 	echo -n "Enter AMI ID> "
 	read -e ami_id
+#TODO: Validate AMI ID
 	ec2-run-instances $ami_id 
 }
 function ec2_set_default_ports_open {
+#TODO: Be able to select Instance
 	ec2-authorize default -p 22
 	ec2-authorize default -p 80
 }
 function my_exit {
+	clear;
+#TODO: Make this do something annoying
+	echo "Goodbye."
+	sleep 2;
 	exit 2
 }
 Functions=('connect_remote' 
@@ -310,6 +359,38 @@ Functions=('connect_remote'
 		'ec2_set_default_ports_open' 
 		'my_exit')
 
+
+Categories=('Unix'
+		'MySQL'
+		'Git'
+		'RSync'
+		'EC2'
+		'Exit')
+
+Unix_Functions=('connect_remote'
+		'send_remote_cmd'
+		'set_hosts_file_local'
+		'unset_hosts_file_local'
+		'retrieve_remote_file')
+
+Mysql_Functions=('dump_db'
+		'import_db'
+		'get_remote_db'
+		'send_db_to_remote'
+		'replicate_db'
+		'set_dev'
+		'set_staging')
+
+Git_Functions=('save_to_git' 
+		'git_pull')
+
+RSync_Functions=('dev_to_stage'
+		'git_to_dev'
+		'git_to_stage')
+
+EC2_Functions=('setup_ec2_command_line_tools'
+		'ec2_set_default_port_open')
+
 Function_descriptions=('Connect to Remote Server' 
 			'Dump local MySQL DB' 
 			'Import MySQL DB from Local File' 
@@ -333,32 +414,51 @@ Function_descriptions=('Connect to Remote Server'
 			'Open EC2 Ports 22 & 80'
 			'Exit')
 function sub_menu {
+#SHOWS+Handles Sub Menu
 	clear
 	A=("$@")
 	i=${#A[@]}
 	echo 'Servers[n]:';
 	for ((k=0;k<$i;k++));
 	do
-		echo "[${k}]: "${A[${k}]}
+		echo "[$(tput setaf 2)${k}$(tput sgr0)]: $(tput setaf 1)${A[${k}]}$(tput sgr0)"
 	done
 
 	echo -n '> ' 
 	read serv
 	return $serv
 }
-i=${#Functions[@]}
-echo 'Functions [n]:';
-for ((k=0;k<$i;k++));
-do
-	echo "[${k}]: "${Function_descriptions[${k}]}
-done
+function start_menu {
+#SHOWS+Handles Main Menu
+	clear;
+	i=${#Functions[@]}
+	echo " $(tput setaf 4)$(tput sgr 0 1)Functions [n]:$(tput sgr0)";
+	for ((k=0;k<$i;k++));
+	do
+		echo "[$(tput setaf 2)${k}$(tput sgr0)]: $(tput setaf 1)${Function_descriptions[${k}]}$(tput sgr0)"
+	done
 
-echo -n enter function '> ' 
-read func
-ISF="`type -t ${Functions[${func}]}`"
-if [ "$ISF" != "function" ]; then
-       exit 2
-fi
-${Functions[${func}]}
+	echo -n enter function '> ' 
+	read func
+	if ! [[ $func =~ ^[0-9]+$ ]]; then
+		start_menu;
+	fi
+	if [ ${#func} -eq 0 ]; then
+		start_menu;
+	fi
+	if [ ${func} -lt 0 ]; then
+		start_menu;
+	fi
+	last=${#Functions[@]}-1
+	if [[ "$func" -gt "$last" ]]; then
+		start_menu;
+	fi
+	ISF="`type -t ${Functions[${func}]}`"
+	if [ "$ISF" != "function" ]; then
+	       exit 2
+	fi
+	${Functions[${func}]}
+}
+start_menu
 exit 2
 
