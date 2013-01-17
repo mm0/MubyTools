@@ -1,8 +1,30 @@
 #!/usr/bin/ruby
 
 require "colorize"
+require "sqlite3"
 
 class ADMIN_HELPER 
+	@@version = 0.1
+	@@database_file = "data.db"
+	def install_sqlite_db
+		begin
+			db = SQLite3::Database.new @@database_file
+			db.execute "CREATE TABLE IF NOT EXISTS admin_config (Id INTEGER PRIMARY KEY, Name TEXT, Option TEXT)"
+		rescue SQLite3::Exception => e 
+			puts "Exception occured"
+			puts e
+		ensure
+			db.close if db
+		end
+
+	end
+	def load_sqlite_db
+		db = SQLite3::Database.open @@database_file
+		 a = db.execute "SELECT * FROM admin_config"
+ 		a.each do |k|
+			p k
+		end
+	end
 	@@commands = { "Categories" => {
 				"Unix"=> [
 					{
@@ -133,6 +155,12 @@ class ADMIN_HELPER
 	}
 
 	def initialize 
+		if File.exists?(@@database_file)
+			self.install_sqlite_db
+		else
+			self.load_sqlite_db
+		end
+		
 		show_menu
 	end
 
