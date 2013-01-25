@@ -3,6 +3,85 @@
 require "colorize"
 require "sqlite3"
 
+class SQLITE_ADAPTER 
+	@@version 0.1
+	@@db_conn
+	@@database_file = "data.db"
+	
+	def add_command str, category
+		category = @db.execute "SELECT Category_Id From admin_command_categories WHERE name='"+category+"'"
+
+	end
+	
+	def first_install 
+		begin
+			@db = SQLite3::Database.new @@database_file
+			@db.execute "CREATE TABLE IF NOT EXISTS admin_config (Id INTEGER PRIMARY KEY, Name TEXT, Option TEXT)"
+			@db.execute "CREATE TABLE IF NOT EXISTS admin_servers (Id INTEGER PRIMARY KEY, Name TEXT, Host TEXT, Port TEXT)"
+			@db.execute "CREATE TABLE IF NOT EXISTS admin_databases (Id INTEGER PRIMARY KEY, Name TEXT, Host TEXT, Port TEXT,Type TEXT)"
+			@db.execute "CREATE TABLE IF NOT EXISTS admin_ssh_keys (Id INTEGER PRIMARY KEY, User TEXT, Key TEXT, Type TEXT)"
+			@db.execute "CREATE TABLE IF NOT EXISTS admin_ssh_keys_server (Server_Id INTEGER , Ssh_Key_Id INTEGER, Enabled BOOLEAN)"
+			@db.execute "CREATE TABLE IF NOT EXISTS admin_commands (Server_Id INTEGER , Ssh_Key_Id INTEGER, Enabled BOOLEAN)"
+			@db.execute "CREATE TABLE IF NOT EXISTS admin_command_categories (Category_Id INTEGER , Name TEXT )"
+		rescue SQLite3::Exception => e 
+			puts "Exception occured"
+			puts e
+		ensure
+			@db.close if @db
+		end
+
+	end
+	
+	def get_servers
+		q= "SELECT * FROM admin_servers";
+		r = @db.execute q
+
+	end
+	
+	def get_databases
+		q= "SELECT * FROM admin_databases";
+		r = @db.execute q
+
+	end
+	
+	def get_keys
+		q= "SELECT * FROM admin_ssh_keys";
+		r = @db.execute q
+
+	end
+	
+	def get_config
+		q= "SELECT * FROM admin_config"
+		r = @db.execute q
+	end
+
+	def update_config field, value
+		q = "UPDATE admin_config SET "+field+"='"+value+"'"
+		r = @db.execute q
+	end
+
+	def add_server 
+		q = " INSERT INTO admin_servers ( ) VALUES ( )"
+		r = @db.execute q
+	end
+
+	def add_database
+		q = " INSERT INTO admin_databases ( ) VALUES ( )"
+		r = @db.execute q
+	end
+
+	def add_key
+		q = " INSERT INTO admin_ssh_keys ( ) VALUES ( )"
+		r = @db.execute q
+
+	end
+
+	def assign_key_to_server key_id server_id  
+		q = " INSERT INTO admin_ssh_keys_servers (key_id,server_id ) VALUES ("+key_id+","+server_id+" )"
+		r = @db.execute q
+	end
+end
+
 class ADMIN_HELPER 
 	@@version = 0.1
 	@@database_file = "data.db"
@@ -258,7 +337,7 @@ class ADMIN_HELPER
 			`clear`
 			puts "\t"+"#{key}".green.underline
 			v.each {|index,comm|
-				puts "\t\t [#{i}] > "+index['title']
+				puts "\t\t ["+"#{i}".red+"]\t>\t"+index['title'].cyan
 				i+=1
 		#		puts "\tdef #{index['command']} \n\n\tend\n\n"
 			}
@@ -269,3 +348,4 @@ end
 
 a = ADMIN_HELPER.new
 
+#puts String.color_matrix
