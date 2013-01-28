@@ -2,6 +2,7 @@
 
 require "colorize"
 require "sqlite3"
+require "json" 
 
 class SQLITE_ADAPTER 
 	@@version = 0.1
@@ -9,8 +10,8 @@ class SQLITE_ADAPTER
 	@@database_file = "data.db"
 	@db 
 	
-	def add_command str, title,description,category,type
-		puts @db.execute "INSERT INTO admin_commands ('"+str+"','"+title+"','"+description+"','"+category+"','"+type+"')"
+	def add_command str, title,description,type,category
+		puts @db.execute "INSERT INTO admin_commands VALUES(null,?,?,?,?,?) ", str,title,description,type,category
 
 	end
 	
@@ -27,13 +28,13 @@ class SQLITE_ADAPTER
 			@db.execute "CREATE TABLE IF NOT EXISTS admin_databases (Id INTEGER PRIMARY KEY, Name TEXT, Host TEXT, Port INTEGER,Type TEXT)"
 			@db.execute "CREATE TABLE IF NOT EXISTS admin_ssh_keys (Id INTEGER PRIMARY KEY, User TEXT, Key TEXT, Type TEXT)"
 			@db.execute "CREATE TABLE IF NOT EXISTS admin_ssh_keys_server (Server_Id INTEGER , Ssh_Key_Id INTEGER, Enabled BOOLEAN)"
-			@db.execute "CREATE TABLE IF NOT EXISTS admin_commands (Command_Id INTEGER , Command TEXT,Title TEXT, Description TEXT, Type TEXT,Category TEXT)"
+			@db.execute "CREATE TABLE IF NOT EXISTS admin_commands (Command_Id INTEGER PRIMARY KEY, Command TEXT,Title TEXT, Description TEXT, Type TEXT,Category TEXT)"
 			@db.execute "CREATE TABLE IF NOT EXISTS admin_command_type (Type TEXT , Name TEXT )"
 		rescue SQLite3::Exception => e 
 			puts "Exception occured"
 			puts e
 		ensure
-			@db.close if @db
+			#@db.close if @db
 		end
 
 	end
@@ -90,8 +91,10 @@ end
 class ADMIN_HELPER 
 	@@version = 0.1
 	@@database_file = "./data.db"
+	@@default_commands = "default_commands.json"
 	@@SQL
 	@@config 
+	@@commands 
 
 	def install_sqlite_db
 		@@SQL.first_install	
@@ -101,165 +104,32 @@ class ADMIN_HELPER
 		@@config = @@SQL.get_config
 
 	end
-	@@commands = { "Categories" => {
-				"Unix"=> [
-					{
-						"command"=>"connect_remote" ,
-						"title" => 'Connect to Remote Server' ,
-						"description" => 'Connect to Remote Server' ,
-						"type" => ""
-					},
-					{
-						"command"=>"send_remote_cmd" ,
-						"title" => "Send Command to Remote Server via SSH" ,
-						"description" => 'Dump local MySQL DB' ,
-						"type" => ""
-					},
-					{
-						"command"=>"retrieve_remote_file" ,
-						"title" => 'Retrieve a remote file through SCP' ,
-						"description" => 'Retrieve a remote file through SCP' ,
-						"type" => ""
-					},
-					{
-						"command"=>"send_remote_file" ,
-						"title" => 'Send a file to remote server through SCP' ,
-						"description" => 'Send a file to remote server through SCP' ,
-						"type" => ""
-					},
-					{
-						"command"=>"connect_remote" ,
-						"title" => 'Dump local MySQL DB' ,
-						"description" => 'Dump local MySQL DB' ,
-						"type" => ""
-					},
-					{
-						"command"=>"set_local_hosts" ,
-						"title" => "Set Local /etc/hosts File for development" ,
-						"description" =>  "Set Local /etc/hosts File for development" ,
-						"type" => ""
-					},
-					{
-						"command"=>"unset_local_hosts" ,
-						"title" => "Unset Local /etc/hosts File for development" ,
-						"description" =>  "Unset Local /etc/hosts File for development" ,
-						"type" => ""
-					},
-					{
-						"command"=>"rsync_directories" ,
-						"title" => "Rsync Local Directories" ,
-						"description" =>  "Rsync Local Directories" ,
-						"type" => ""
-					}
-					#'Rsync Dev->Staging'
-					#'Rsync Staging->Production' 
-					#'Git to Dev'
-					#'Git to Staging'
-					#'Set Dev'
-					#'Set Staging'   
-					#'Exit'
-						],
-				"MySQL" => [
-					{
-						"command"=>"dump_db" ,
-						"title" => 'Dump local MySQL DB' ,
-						"description" => 'Dump local MySQL DB' ,
-						"type" => ""
-					},
-					{
-						"command"=>"import_db" ,
-						"title" => 'Import local MySQL DB' ,
-						"description" => 'Import local MySQL DB' ,
-						"type" => ""
-					},
-					{
-						"command"=>"get_remote_db" ,
-						"title" => 'Retrieve remote MySQL DB Dump' ,
-						"description" =>  'Retrieve remote MySQL DB Dump' ,
-						"type" => ""
-					},
-					{
-						"command"=>"export_local_db" ,
-						"title" => 'Export Local MySQL DB Dump to Remote Server' ,
-						"description" =>  'Export Local MySQL DB Dump to Remote Server' ,
-						"type" => ""
-					},
-					#'Replicate DB'
-				],
-				"Git" => [
-					{
-						"command"=>"git_pull" ,
-						"title" => 'Git Pull' ,
-						"description" =>  'Git Pull' ,
-						"type" => ""
-					},
-					{
-						"command"=>"git_quick_commit" ,
-						"title" => "Quick Add+Commit+Push To Github",
-						"description" =>  "Quick Add+Commit+Push To Github",
-						"type" => ""
-					},
-				],
-				"EC2" => [
-					{
-						"command"=>"setup_ec2_command_line_tools" ,
-						"title" => 'Setup EC2 Command Line Tools' ,
-						"description" =>  'Setup EC2 Command Line Tools'  ,
-						"type" => ""
-					},
-					{
-						"command"=>"show_servers" ,
-						"title" => 'List EC2 Servers' ,
-						"description" =>  'Lists EC2 Servers' ,
-						"type" => ""
-					},
-					{
-						"command"=>"show_images" ,
-						"title" => 'List EC2 Snapshots' ,
-						"description" =>  'Lists EC2 Snapshots' ,
-						"type" => ""
-					},
-					{
-						"command"=>"show_emis" ,
-						"title" => 'List EC2 EMIs' ,
-						"description" =>  'Lists EC2 EMIs' ,
-						"type" => ""
-					},
-					{
-						"command"=>"open_ec2_port" ,
-						"title" => 'Open EC2 Port' ,
-						"description" =>  'Open EC2 Port' ,
-						"type" => ""
-					},
-					{
-						"command"=>"close_ec2_port" ,
-						"title" => 'Close EC2 Port' ,
-						"description" =>  'Close EC2 Port' ,
-						"type" => ""
-					},
-
-				],
-				"Exit" => [
-					{
-						"command"=>"exit" ,
-						"title" => 'exit' ,
-						"description" =>  '' ,
-						"type" => ""
-					},
-				]
-				
-			}
-	}
 
 	def process_command command
 
 	end
 
+	def install_commands comms
+		comms['Categories'].each {|key,v|
+			v.each {|index,comm|
+				category = key
+				str  = index['command']
+				title = index['title']
+				description = index['description']
+				type =  index['type']
+				@@SQL.add_command str, title,description,category,type
+
+			}
+		}
+
+	end
 
 	def initialize 
 		@@SQL = SQLITE_ADAPTER.new
 		if !File.exists?(@@database_file)
+			@@commands = JSON.parse(IO.read( @@default_commands) )
 			self.install_sqlite_db
+			self.install_commands @@commands
 			
 		else
 			@@SQL.connect
