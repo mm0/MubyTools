@@ -333,7 +333,7 @@ function my_exit {
 	clear;
 #TODO: Make this do something annoying
 	echo "Goodbye."
-	sleep 2;
+	sleep 1;
 	exit 2
 }
 Functions=('connect_remote' 
