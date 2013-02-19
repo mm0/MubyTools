@@ -102,10 +102,15 @@ class ADMIN_HELPER
 
 	def load_config
 		@@config = @@SQL.get_config
-
 	end
 
 	def process_command command
+		category = command['Category']
+		str  = command['Command']
+		title = command['Title']
+		description = command['Description']
+		type =  command['Type']
+		#parse by % ex: scp %s %s %s 
 
 	end
 
@@ -139,8 +144,10 @@ class ADMIN_HELPER
 		show_menu
 	end
 
-	def asd
-
+	def get_user_input	text,variable
+		puts text+"> " 		
+		data = gets 
+		self.set_config variable,data
 	end
 
 	def connect_remote 
