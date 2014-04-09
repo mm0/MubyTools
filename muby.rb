@@ -7,10 +7,14 @@ require "ostruct"
 require "optparse"
 require "pp"
 
+PATH=File.expand_path(File.dirname(__FILE__))+"/"
+
 class SQLITE_ADAPTER 
 	@@version = 0.1
 	@@db_conn
-	@@database_file = "data.db"
+	@@database_file = PATH+"data.db"
+	@@db_setup_file = PATH+"db_setup.sql"
+	@@db_commands_setup_file = PATH+"db_setup.sql"
 	@db 
 	
 	def add_command str, title,description,type,category
@@ -26,8 +30,8 @@ class SQLITE_ADAPTER
 		puts 'test'
 		begin
 			@db = SQLite3::Database.new @@database_file
-			create = File.read('db_setup.sql')
-			commands = File.read('db_commands_setup.sql')
+			create = @@db_setup_file
+			commands = @@db_commands_setup_file
 			@db.execute_batch create
 			@db.execute_batch commands
 		rescue SQLite3::Exception => e 
@@ -80,7 +84,7 @@ class SQLITE_ADAPTER
 
 	def get_commands
 		@db.results_as_hash = true
-		q= "SELECT * FROM admin_commands LIMIT 8"
+		q= "SELECT * FROM admin_commands"
 		return @db.execute q
 	end
 
@@ -113,7 +117,7 @@ end
 
 class ADMIN_HELPER 
 	@@version = 0.1
-	@@database_file = "./data.db"
+	@@database_file = PATH+"./data.db"
 	@@default_commands = "default_commands.json"
 	@@SQL
 	@@config 
@@ -125,11 +129,9 @@ class ADMIN_HELPER
 	def setup_sqlite_db
 		@@SQL.first_install	
 	end
-
 	def load_config
 		@@config = @@SQL.get_config
 	end
-
 	def load_commands
 		@@commands= @@SQL.get_commands
 	end
@@ -160,7 +162,6 @@ class ADMIN_HELPER
 		description = command['Description']
 		type =  command['Type']
 		#parse by % ex: scp %s %s %s 
-
 	end
 
 	def install_commands comms
@@ -172,7 +173,6 @@ class ADMIN_HELPER
 				description = index['description']
 				type =  index['type']
 				@@SQL.add_command str, title,description,category,type
-
 			}
 		}
 
@@ -186,7 +186,6 @@ class ADMIN_HELPER
 		if !File.exists?(@@database_file)
 			#@@commands = JSON.parse(IO.read( @@default_commands) )
 			self.setup_sqlite_db
-			
 		else
 			@@SQL.connect
 		end
@@ -199,12 +198,21 @@ class ADMIN_HELPER
 			shortcut = ARGV[0]
 			command = self.get_command_by_shortcut shortcut
 			input_s = self.get_inputs command
-			# p input_s 
-			self.output_command  self.parse_command( command['Command'],input_s )
+			self.output_command (self.parse_command( command,input_s ))
 		end
 		
 	end
 
+	def get_command_expanded command
+		if command['Command_Type_Id'].to_i == 2  then
+			return "sudo bash -c \"$(cat <<EOFMUBY
+			#{command['Command']} 
+EOFMUBY
+)\"" 
+		else 
+			return command['Command']
+		end
+	end
 	def get_command_by_shortcut shortcut
 		@@commands.each{|c| 
 			if c['Shortcut'] == shortcut
@@ -215,7 +223,7 @@ class ADMIN_HELPER
 
 	def get_user_input	text,variable
 		puts text+"> " 		
-		data = gets 
+		data = STDIN.gets 
 		self.set_config variable,data
 	end
 
@@ -232,7 +240,6 @@ class ADMIN_HELPER
 	
 	def show_menu category_id
 		i=0;
-		#p @@commands
 		##groups by categories
 		#store the Id -> selector map
 		clear
@@ -242,36 +249,27 @@ class ADMIN_HELPER
 				next
 			end
 			local_commands[i] = key['Command_Id'].to_i
-			`clear`
-		#	puts "\t"+"#{key['Command_Id']}".green.underline
-			#v.each {|index,comm|
-				puts "\t\t ["+"#{i}".red+"]\t>\t"+key['Title'].cyan
-				i+=1
-		#		puts "\tdef #{index['command']} \n\n\tend\n\n"
+			puts "\t\t ["+"#{i}".red+"]\t>\t"+key['Title'].cyan
+			i+=1
 		}
 		item = STDIN.gets.chomp.to_i
 		command_id =  local_commands[item]
-		@@commands.each{|k|
-			if k['Command_Id'].to_i == command_id.to_i
-				inputs = k['Inputs']
-				input_type = k['Input_Type_Id']
-				optional_inputs = k['Optional_Inputs']
-				command_type = k['Type_Id']
-				command = k['Command']
-				#check inputs
-				inputs = self.get_inputs k
-				#check optional inputs
+		@@commands.each{|command|
+			if command['Command_Id'].to_i == command_id.to_i
 				#get inputs
+				p command
+				inputs = self.get_inputs command
 				#parse command
-				parsed = self.parse_command(command, inputs)
+				parsed = self.parse_command(command,inputs)
 				#output/execute command
 				self.output_command ( parsed )
-#				p parsed
 			end
 		}
 	end
 
 	def get_inputs command
+				#check inputs
+				#check optional inputs
 		inputs = command['Inputs'].to_i
 		optional_inputs = command['Optional_Inputs'].to_i
 		req = inputs - optional_inputs
@@ -287,8 +285,8 @@ class ADMIN_HELPER
 				end
 			end 
 		end 
-		p req
-		req = 3
+		#p req
+		#req = 3
 		while input_s.length < req do
 			case input_type
 			when false
@@ -302,7 +300,7 @@ class ADMIN_HELPER
 
 	def execute_command cmd
 		#p cmd
-		`#{cmd}`
+		p `#{cmd}`.chomp
 	end
 
 	def output_command cmd
@@ -315,16 +313,16 @@ class ADMIN_HELPER
 	end
 
 	def print_command cmd
-		p cmd
+		puts cmd
 	end
 
 	def parse_command cmd, inputs
 		i=0 
 		until !inputs[i] do 
-			cmd =  cmd.gsub(/\$#{Regexp.escape((i+1).to_s)}/,inputs[i])
+			cmd['Command'] =  cmd['Command'].gsub(/\$#{Regexp.escape((i+1).to_s)}/,inputs[i])
 			i+=1
 		end
-		return cmd
+		return self.get_command_expanded cmd
 	end
 
 end

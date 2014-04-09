@@ -17,15 +17,20 @@ BEGIN TRANSACTION;
 	INSERT INTO admin_command_input_types VALUES(null, 'STDIN Input','Determines where to search for user input');
 
 	/*	COMMANDS*/
-INSERT INTO admin_commands VALUES(NULL,1,1,'ssh $1:$2 $3','Connect to Remote Server','Connect to Remote Server',1,2,1,'ssh_connect');
-INSERT INTO admin_commands VALUES(NULL,1,1,'gunzip $1','GUNZIP File','Expands a GZ file',1,2,1,'gunzip');
-INSERT INTO admin_commands VALUES(NULL,2,1,'scp $1:$2 $3','Retrieve a remote file through SCP','Retrieve a remote file through SCP',1,3,1,'scp_retrieve');
-INSERT INTO admin_commands VALUES(NULL,2,1,'scp $4 $1:$2 ','Send a remote file through SCP','Send a local file to Remote server through SCP',1,3,1,'scp_send');
-INSERT INTO admin_commands VALUES(NULL,1,2,"echo '$1' >> /etc/hosts",'Set Local /etc/hosts File for development','Set Local /etc/hosts File for development',1,1,0,'set_local_hosts');
-INSERT INTO admin_commands VALUES(NULL,3,1,"mysql -u$1 -p'$2' $3 < $4 ",'Import local MySQL DB','Import local MySQL DB',1,3,1,'mysql_import');
+INSERT INTO admin_commands VALUES(NULL,1,1,'ssh $1 $2','Connect to Remote Server','Connect to Remote Server',1,1,1,'ssh_connect');
+INSERT INTO admin_commands VALUES(NULL,1,1,'gunzip $1','GUNZIP File','Expands a GZ file',1,1,0,'gunzip');
+INSERT INTO admin_commands VALUES(NULL,1,1,'ls -ld -rt $1/* | tail -1 ','List Newest filename (full path)','Outputs the latest modified file in the directory passed as input',1,1,0,'ls_newest_file_full_path');
+INSERT INTO admin_commands VALUES(NULL,2,1,'scp $1:$2 $3','Retrieve a remote file through SCP','Retrieve a remote file through SCP',1,3,0,'scp_retrieve');
+INSERT INTO admin_commands VALUES(NULL,2,1,'scp $3 $1:$2 ','Send a remote file through SCP','Send a local file to Remote server through SCP',1,3,0,'scp_send');
+INSERT INTO admin_commands VALUES(NULL,1,2,'echo -e "$1" >> /etc/hosts','Set Local /etc/hosts File for development','Set Local /etc/hosts File for development',1,1,0,'set_local_hosts');
+INSERT INTO admin_commands VALUES(NULL,1,2," grep -v '$1' /etc/hosts > /tmp/hosts; mv /tmp/hosts /etc",'Un-Set Local /etc/hosts File for development','Un-Set Local /etc/hosts File for development.  One input: string to search for on line',1,1,0,'unset_local_hosts');
+INSERT INTO admin_commands VALUES(NULL,3,1,"mysql -u$1 -p'$2' $4 < $3 ",'Import local MySQL DB','Import local MySQL DB',1,4,1,'mysql_import');
 INSERT INTO admin_commands VALUES(NULL,1,1,'exit','exit','Exit',1,0,0,'exit');
-INSERT INTO admin_commands VALUES(NULL,4,1,'vagrant up $1 ','Start Vagrant Server ','Start Vagrant Server via SSH',1,0,1,'vagrant_start');
-INSERT INTO admin_commands VALUES(NULL,4,1,"vagrant ssh -c'$1' ",'Send Command to Vagrant Server via SSH','Send Command to Vagrant Server via SSH',1,1,0,'vagrant_execute_cmd');
+INSERT INTO admin_commands VALUES(NULL,4,1,'cd $1; vagrant up ','Start Vagrant Server ','Start Vagrant Server via SSH',1,1,0,'vagrant_start');
+INSERT INTO admin_commands VALUES(NULL,4,1,'cd $1; vagrant suspend ','Pause Vagrant Server ','Pause Vagrant Server',1,1,0,'vagrant_pause');
+INSERT INTO admin_commands VALUES(NULL,4,1,'cd $1; vagrant halt ','Stop Vagrant Server ','Stop Vagrant Server',1,1,0,'vagrant_stop');
+INSERT INTO admin_commands VALUES(NULL,2,1,"ssh $1 '$2' ",'Send Command to Remote Server via SSH','Send Command to Vagrant Server via SSH',1,2,0,'ssh_execute_remote_cmd');
+INSERT INTO admin_commands VALUES(NULL,4,1,"vagrant ssh -c '$1' ",'Send Command to Vagrant Server via SSH','Send Command to Vagrant Server via SSH',1,1,0,'vagrant_execute_cmd');
 COMMIT;
 /*
 INSERT INTO admin_commands VALUES(NULL,NULL,9,'dump_db','Dump local MySQL DB','Dump local MySQL DB','MySQL','');
