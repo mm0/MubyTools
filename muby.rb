@@ -14,7 +14,7 @@ class SQLITE_ADAPTER
 	@@db_conn
 	@@database_file = PATH+"data.db"
 	@@db_setup_file = PATH+"db_setup.sql"
-	@@db_commands_setup_file = PATH+"db_setup.sql"
+	@@db_commands_setup_file = PATH+"db_commands_setup.sql"
 	@db 
 	
 	def add_command str, title,description,type,category
@@ -30,8 +30,8 @@ class SQLITE_ADAPTER
 		puts 'test'
 		begin
 			@db = SQLite3::Database.new @@database_file
-			create = @@db_setup_file
-			commands = @@db_commands_setup_file
+			create = File.read(@@db_setup_file)
+			commands = File.read(@@db_commands_setup_file)
 			@db.execute_batch create
 			@db.execute_batch commands
 		rescue SQLite3::Exception => e 
