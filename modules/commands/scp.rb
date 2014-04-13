@@ -17,7 +17,7 @@ include Command
 		@description	=	"Outputs contents of a directory passed as input"
 		@category		=	"Local CLI Commands"
 		@sub_category 	=	"Commands to be executed locally through a Shell"
-		@command_type	=	"UNIX"
+		@command_type	=	Current_User
 	end 
 
 	def can_use?
@@ -36,6 +36,7 @@ class SCP_retrive < SCP
 		@ENABLED		=	true
 		@sort 			= 	100
 		@title			=	"Retrieve a remote file through SCP"
+		@command		=	"scp $1:$2 $3"
 		@shortcut		=	"scp_retrieve"
 		@description	=	"Retrieve a remote file through SCP"
 	end
@@ -47,6 +48,7 @@ class SCP_send < SCP
 		@ENABLED		=	true
 		@sort 			= 	100
 		@title			=	"Send a local file to remote server through SCP"
+		@command		=	"scp $3 $1:$2"
 		@shortcut		=	"scp_send"
 		@description	=	"Send a local file to Remote server through SCP"
 	end

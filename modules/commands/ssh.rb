@@ -12,7 +12,7 @@ include Command
 		@sort 			=	0
 		@category		=	"Local CLI Commands"
 		@sub_category 	=	"Commands to be executed locally through a Shell"
-		@command_type	=	"UNIX"
+		@command_type	=	Current_User
 	end 
 
 	def can_use?
@@ -29,6 +29,7 @@ class SSH_connect < SSH
 		super
 		@ENABLED		= true
 		@sort 			= 100
+		@command		=	"ssh $1 $2"
 		@title			=	"Connect to Remote Server"
 		@shortcut		=	"ssh_connect"
 		@description	=	"Connect to a remote ssh server with credentials"
@@ -42,6 +43,7 @@ class SSH_remote_command < SSH
 		@ENABLED		= true
 		@description 	= "Send Command to Remote Server via SSH"
 		@shortcut 		= "ssh_execute_remote_cmd"
+		@command		=	"ssh $1 '$2'"
 		@sort 			= 200
 		@category		= "Remote CLI Commands"
 		@sub_category 	= "Commands to be executed remotely through SSH"

@@ -17,7 +17,7 @@ include Command
 		@description	=	"GUNZIP File"
 		@category		=	"Local CLI Commands"
 		@sub_category 	=	"Commands to be executed locally through a Shell"
-		@command_type	=	"UNIX"
+		@command_type	=	Current_User
 	end 
 
 	def can_use?
@@ -35,6 +35,7 @@ class Gunzip_compress < Gunzip
 		super
 		@title 			= "Compress File(s)"
 		@ENABLED		=	true
+		@command		=	"gzip -9 $1"
 		@description 	= "Compresses a selection of one or more files into output of choice"
 		@shortcut 		= "gunzip_c"
 		@sort 			= 100
@@ -46,6 +47,7 @@ class Gunzip_decompress < Gunzip
 		super
 		@title 			= "Uncompress Gunzip File"
 		@ENABLED		=	true
+		@command		=	"gunzip $1"
 		@description 	= "Decompresses a selected zip file "
 		@shortcut 		= "gunzip_d"
 		@sort 			= 200

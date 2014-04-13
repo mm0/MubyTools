@@ -12,7 +12,7 @@ include Command
 		@sort 			=	0
 		@category		=	"Vagrant(up) Commands"
 		@sub_category 	=	"Commands to adjust Vagrant development environment"
-		@command_type	=	"UNIX"
+		@command_type	=	Current_User
 	end 
 
 	def can_use?
@@ -32,6 +32,7 @@ class Vagrant_start < Vagrant
 		@title			=	"Start Vagrant Server "
 		@shortcut		=	"vagrant_start"
 		@description	=	"Start Vagrant Server "
+		@command		=	"cd $1; vagrant up "
 	end
 end
 
@@ -43,6 +44,7 @@ class Vagrant_pause < Vagrant
 		@title			=	"Pause Vagrant Server "
 		@shortcut		=	"vagrant_pause"
 		@description	=	"Suspend Vagrant Server "
+		@command		=	"cd $1; vagrant suspend"
 	end
 end
 
@@ -54,6 +56,7 @@ class Vagrant_stop < Vagrant
 		@title			=	"Stop Vagrant Server "
 		@shortcut		=	"vagrant_stop"
 		@description	=	"Halt Vagrant Server "
+		@command		=	"cd $1; vagrant halt"
 	end
 end
 

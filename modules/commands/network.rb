@@ -12,7 +12,7 @@ include Command
 		@sort 			=	0
 		@category		=	"Local CLI Commands"
 		@sub_category 	=	"Commands to be executed locally through a Shell"
-		@command_type	=	"UNIX"
+		@command_type	=	Sudo
 	end 
 
 	def can_use?
@@ -31,6 +31,7 @@ class Add_to_local_hosts < Networking
 		@sort 			= 100
 		@title			=	"Set Local /etc/hosts File for development"
 		@shortcut		=	"set_local_hosts"
+		@command		=	"echo -e '$1' >> /etc/hosts"
 		@description	=	"Set Local /etc/hosts File for development"
 	end
 end
@@ -40,6 +41,7 @@ class Remove_from_local_hosts < Networking
 		super
 		@title 			= "Remove entries from Local Hosts file"
 		@ENABLED		= true
+		@command		= "grep -v '$1' /etc/hosts > /tmp/hosts; mv /tmp/hosts /etc"
 		@description 	= "Un-Set Local /etc/hosts File for development.  One input: string to search for"
 		@shortcut 		= "unset_local_hosts"
 		@sort 			= 200
