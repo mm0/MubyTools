@@ -1,6 +1,3 @@
-PATH=File.expand_path(File.dirname(__FILE__))+"/"
-require 'pp'
-require 'colorize'
 require 'ostruct'
 require 'optparse'
 require "./muby2.rb"    

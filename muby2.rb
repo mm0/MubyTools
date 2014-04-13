@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
-
+PATH=File.expand_path(File.dirname(__FILE__))+"/"
+require 'pp'
+require './lib/colorize'
 require "./commands_loader.rb"
 
 
