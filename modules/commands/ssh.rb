@@ -29,11 +29,23 @@ class SSH_connect < SSH
 		super
 		@ENABLED		= true
 		@sort 			= 100
-		@command		=	"ssh $1 $2"
+		@command		=	"ssh {user}@{server}"
 		@title			=	"Connect to Remote Server"
 		@shortcut		=	"ssh_connect"
 		@description	=	"Connect to a remote ssh server with credentials"
 	end
+
+    def get_input_array
+        user_input       = TTY_input.new
+        user_input.required = true
+        user_input.name  =   "User"
+        user_input.string=   "user"
+        server_input       = TTY_input.new
+        server_input.required = true
+        server_input.name  =   "Server Address"
+        server_input.string=   "server"
+        return [user_input,server_input]
+    end 
 end
 
 class SSH_remote_command < SSH

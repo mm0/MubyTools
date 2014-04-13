@@ -15,12 +15,21 @@ class Muby_Commands_Loader
 								#	'Shortcut' => 'asd'}]
 	@@commands_dir			= PATH + "/modules/commands/"
 	@@command_types_dir		= PATH + "/modules/command_types/"
+	@@input_types_dir		= PATH + "/modules/input/"
 	
 	def load_all
 #		self.load_modules
 		self.load_categories
 		self.load_command_types
+		self.load_input_types
 		self.load_commands
+	end
+
+	def load_input_types
+		path = @@input_types_dir + "*.rb"
+		Dir[path].each do |file|
+			require file
+		end
 	end
 
 	def load_command_types

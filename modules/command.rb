@@ -54,12 +54,12 @@ module Command
 	end
 	
 	def parse_command 
-        i=0 
 		cmd = @command
-        until !@input_array[i] do  
-            cmd	=  @command.gsub(/\$#{Regexp.escape((i+1).to_s)}/,@input_array[i])
-            i+=1
-        end 
+		@input_array = self.get_input_array
+        @input_array.each { |input|
+			input.load_value
+            cmd	=  cmd.gsub(/\{#{Regexp.escape((input.string).to_s)}}/,input.value)
+		}
         return self.get_command_expanded cmd
     end 
 
@@ -67,7 +67,7 @@ module Command
 		#TODO: this should happen in the command_type class
         if @command_type == Sudo
             cmd =  "sudo bash -c \"$(cat <<EOFMUBY
-            #{command['Command']} 
+            #{cmd} 
 EOFMUBY
 )\""
         end

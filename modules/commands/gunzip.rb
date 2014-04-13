@@ -35,11 +35,18 @@ class Gunzip_compress < Gunzip
 		super
 		@title 			= "Compress File(s)"
 		@ENABLED		=	true
-		@command		=	"gzip -9 $1"
+		@command		=	"gzip -9 {filename}"
 		@description 	= "Compresses a selection of one or more files into output of choice"
 		@shortcut 		= "gunzip_c"
 		@sort 			= 100
 	end
+    def get_input_array
+        file_input       = TTY_input.new
+        file_input.required = true
+        file_input.name  =   "Filename"
+        file_input.string=   "filename"
+        return [file_input]
+    end 
 end
 
 class Gunzip_decompress < Gunzip
@@ -47,9 +54,16 @@ class Gunzip_decompress < Gunzip
 		super
 		@title 			= "Uncompress Gunzip File"
 		@ENABLED		=	true
-		@command		=	"gunzip $1"
+		@command		=	"gunzip {filename}"
 		@description 	= "Decompresses a selected zip file "
 		@shortcut 		= "gunzip_d"
 		@sort 			= 200
 	end
+    def get_input_array
+        file_input       = TTY_input.new
+        file_input.required = true
+        file_input.name  =   "Filename"
+        file_input.string=   "filename"
+        return [file_input]
+    end 
 end
