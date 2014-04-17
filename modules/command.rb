@@ -13,6 +13,7 @@ module Command
 	attr_accessor :sub_category
 	attr_accessor :command_type
 	attr_accessor :input_array
+	attr_accessor :options
 
 	#class Input_Handler
 	#end
@@ -57,6 +58,7 @@ module Command
 		cmd = @command
 		@input_array = self.get_input_array
         @input_array.each { |input|
+			input.options = @options
 			input.load_value
             cmd	=  cmd.gsub(/\{#{Regexp.escape((input.string).to_s)}}/,input.value)
 		}

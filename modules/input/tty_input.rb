@@ -7,9 +7,12 @@ include Input
 	end
 
 	def load_value
-		puts ("Enter " + @name + " >").green.underline
-		@value = STDIN.gets.chomp
-		@loaded = true
+		super
+		if(!@loaded) 
+			puts ("Enter " + @name + " >").green.underline
+			@value = STDIN.gets.chomp
+			@loaded = true
+		end
 	end
 
 end

@@ -8,8 +8,17 @@ module Input
 	attr_accessor :value
 	attr_accessor :string
 	attr_accessor :name
+	attr_accessor :options
 
 	def is_loaded?
 		return @loaded
+	end
+
+	def load_value
+		if( @options.respond_to?(@string)) 
+			@value = @options.method(@string).call
+			@loaded = true
+		end
+		
 	end
 end
