@@ -1,6 +1,6 @@
 #/usr/bin/ruby
 #
-require "./modules/command.rb"
+require_relative "modules/command"
 
 
 class Muby_Commands_Loader

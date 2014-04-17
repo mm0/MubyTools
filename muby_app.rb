@@ -4,7 +4,7 @@ require 'pp'
 require_relative 'lib/colorize'
 require_relative "commands_loader"
 require_relative "modules/input"
-require_relative "modules/optionsb"
+require_relative "modules/options"
 
 
 class MUBY_APP 
