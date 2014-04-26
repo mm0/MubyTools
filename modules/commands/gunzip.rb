@@ -3,18 +3,18 @@
 	require_relative '../unix'
 	require_relative '../command'
 
-class Gunzip 
+class Gzip 
 include Unix
 include Command
 	
 
 	def initialize
 		init
-		@sort 			=	0
 		@ENABLED		=	false
-		@title			=	"GUNZIP File"
-		@shortcut		=	"gunzip"
-		@description	=	"GUNZIP File"
+		@sort 			=	0
+		@title			=	"GZIP File"
+		@shortcut		=	"gzip"
+		@description	=	"GZIP File"
 		@category		=	"Local CLI Commands"
 		@sub_category 	=	"Commands to be executed locally through a Shell"
 		@command_type	=	Current_User
@@ -26,19 +26,25 @@ include Command
 	def installed? 
 		super
 		@@binary = `which gunzip`
+		return @@binary
 	end
 end
 
 
-class Gunzip_compress < Gunzip
+class Gunzip_compress < Gzip
 	def initialize
 		super
+		init
 		@title 			= "Compress File(s)"
-		@ENABLED		=	true
 		@command		=	"gzip -9 {filename}"
 		@description 	= "Compresses a selection of one or more files into output of choice"
 		@shortcut 		= "gunzip_c"
 		@sort 			= 100
+	end
+	def installed? 
+		super
+		@@binary = `which gzip`
+		return @@binary
 	end
     def get_input_array
         file_input       = TTY_input.new
@@ -49,11 +55,11 @@ class Gunzip_compress < Gunzip
     end 
 end
 
-class Gunzip_decompress < Gunzip
+class Gunzip_decompress < Gzip
 	def initialize
 		super
+		init
 		@title 			= "Uncompress Gunzip File"
-		@ENABLED		=	true
 		@command		=	"gunzip {filename}"
 		@description 	= "Decompresses a selected zip file "
 		@shortcut 		= "gunzip_d"
