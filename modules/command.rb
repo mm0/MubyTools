@@ -4,6 +4,8 @@ module Command
 	attr_accessor :state
 	attr_accessor :title
 	attr_accessor :print_only 
+	attr_accessor :silent
+	attr_accessor :verbose
 	attr_accessor :output_only 
 	attr_accessor :shortcut
 	attr_accessor :command
@@ -18,9 +20,10 @@ module Command
 	#class Input_Handler
 	#end
 	def init
-		if !can_use?
+		if can_use? == 0 || !can_use? 
 			@ENABLED= false
-			puts "disabled"
+		else 
+			@ENABLED= true
 		end
 	end
 
@@ -33,11 +36,11 @@ module Command
 			puts "Command has begun"
 		end
 		if has_inputs?
-	
+			@input_array = self.get_input_array
 		else 
 			@input_array = []
 		end
-		if can_use?
+		if @ENABLED === true
 			parsed_command = self.parse_command
 			self.output_command(parsed_command)
 
@@ -47,16 +50,16 @@ module Command
 
 	def has_inputs?
 		#most commands will require inputs
-		return false;
+		#TODO: check command input_array or have flag to indicate this
+		return true;
 	end
 
 	def can_use?
-
+	#	return true;
 	end
 	
 	def parse_command 
 		cmd = @command
-		@input_array = self.get_input_array
         @input_array.each { |input|
 			input.options = @options
 			input.load_value
@@ -89,7 +92,11 @@ EOFMUBY
     end
 
     def execute cmd
-        puts `#{cmd}`.chomp
+		if @silent
+			`#{cmd}`
+		else
+			puts `#{cmd}`.chomp
+		end
     end
 
 end
