@@ -37,8 +37,8 @@ class MUBY_APP
 		@@categories 	= loader.get_categories
 		@@commands 		= loader.get_commands
 		
-		@@Options = Muby_Options_Parser.new self.get_commands_options
-		@@Options = @@Options.options
+		@@Options 		= Muby_Options_Parser.new self.get_commands_options
+		@@Options 		= @@Options.options
 		if ARGV.length == 0
 			#clear
 			puts "Welcome to Muby Tools".colorize(:color=>:green,:background=>:default).underline
@@ -46,8 +46,8 @@ class MUBY_APP
 			self.show_category_menu false
 		else
 			#cli format
-			shortcut = ARGV[0]
-			command = self.get_command_by_shortcut shortcut
+			shortcut 	= ARGV[0]
+			command 	= self.get_command_by_shortcut shortcut
 			if command == false
 				error_exit "Command not found"
 			end
@@ -85,7 +85,7 @@ class MUBY_APP
 	end
 
 	def show_category_menu should_clear=true
-		i=1
+		i	=1
 		if should_clear
 			clear
 		end
@@ -107,46 +107,54 @@ class MUBY_APP
 	end
 	
 	def show_menu category_id
-		i=1;
+		i				= 1;
 		##groups by categories
 		#store the Id -> selector map
 		clear
-		category = @@categories[category_id]['title']
-		category_desc = @@categories[category_id]['sub']
+		category 		= @@categories[category_id]['title']
+		category_desc 	= @@categories[category_id]['sub']
 		puts category.green.bold
 		puts category_desc.green.underline
-		local_commands = []
+		local_commands 	= []
+		#print commands and shortcut numbers
 		@@commands.each {|key|
 			if key.category != category
 				next
 			else
 				local_commands[i-1] = key
 				puts "\t ["+"#{i}".green+"]\t>\t"+key.title.cyan
+				i+=1
 			end
-			i+=1
 		}
 		puts "\t ["+"x".red+"]\t>\t"+"Exit.".cyan
 		puts "\t ["+"b".yellow+"]\t>\t"+"Back.".cyan
 		puts "\r"+"Enter your selection: "
 		item 	= STDIN.gets.chomp
+		#case exit program
 		if item == "x" || item == "X" 
 			self.graceful_exit
+		#case go back
 		elsif item == "b" || item == "B" 
 			return self.show_category_menu
 		end
-		item = item.to_i
-		if item == local_commands.length || local_commands[item] == nil || item == 0
+		#account for 0 start array
+		item 			= item.to_i-1
+		if item == local_commands.length+1 || local_commands[item] == nil || item < 0
 			self.error_exit "Error: Selection not valid"
 		end
 		#command is set to the command object stored in local_commands array
-		command	=  local_commands[item-1]
+		command			= local_commands[item]
+		#display which command was selected
+		puts command.title.yellow
 		#the goal here is to have the command object process itself
 		self.process_command command
 	end
 	
 	def process_command command
-		command.print_only = @@Options.print_only != nil ? true : false
-		command.options = @@Options
+		command.print_only 	= @@Options.print_only 	!= nil ? true : false
+		command.silent 		= @@Options.silent		!= nil ? true : false
+		command.verbose		= @@Options.verbose		!= nil ? true : false
+		command.options 	= @@Options
 		command.begin
 	end
 
