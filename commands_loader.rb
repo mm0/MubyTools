@@ -57,15 +57,15 @@ class Muby_Commands_Loader
 		Dir[path].each do |file|
 			#Is this best way to determine which classes were loaded?
 			current_classes = Object.constants
-		#	pp file
 			require file
+			#newly loaded classes
 			new_classes = Object.constants - current_classes
 			new_classes.each do |cl|
 				cl = Kernel.const_get(cl)
-		#		pp cl.class
+				#check if class and not module
 				if cl.instance_of? Class
-		#			pp "class"
 					command = cl.new
+					#check command is enabled
 					if command.ENABLED then
 						self.add_command(command)
 						self.add_category(command)
@@ -73,6 +73,10 @@ class Muby_Commands_Loader
 				end
 			end
 		end
+
+		#first sort alphabetically (easier to read)
+		@@commands = @@commands.sort_by{|k|k.title.downcase}
+		#next sort by sort value for absolute position
 		@@commands = @@commands.sort_by{|k|k.sort}
 		#pp @@commands
 	end
