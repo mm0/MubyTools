@@ -2,7 +2,7 @@
 PATH=File.expand_path(File.dirname(__FILE__))+"/"
 require 'pp'
 require_relative 'lib/colorize'
-require_relative "commands_loader"
+require_relative "modules/commands_loader"
 require_relative "modules/input"
 require_relative "modules/options"
 
