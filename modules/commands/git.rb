@@ -33,3 +33,19 @@ class Git
 end
 
 
+=begin 
+
+{
+                        "command":"git_pull" ,
+                        "title" : "Git Pull" ,
+                        "description" :  "Git Pull" ,
+                        "type" : ""
+                    },
+                    {
+                        "command":"git_quick_commit" ,
+                        "title" : "Quick Add+Commit+Push To Github",
+                        "description" :  "Quick Add+Commit+Push To Github",
+                        "type" : ""
+                    },
+
+=end
