@@ -1,35 +1,4 @@
 BEGIN TRANSACTION;
-CREATE TABLE
-       admin_categories (
-		Category_Id INTEGER PRIMARY KEY,
-       Title TEXT, Description TEXT
-     ) ;
-CREATE TABLE
-       admin_command_input_types (
-		   Input_Type_Id INTEGER PRIMARY KEY, 
-			Text TEXT, 
-			Description TEXT
-       );
-CREATE TABLE admin_command_types (
-		Command_Type_Id INTEGER PRIMARY KEY,
-		Name TEXT,
-		Description TEXT);
-CREATE TABLE
-       admin_commands (
-			Command_Id INTEGER PRIMARY KEY,
-		    Category_Id INTEGER,
-			Command_Type_Id INTEGER,
-		    Command TEXT, 
-			Title TEXT, 
-			Description TEXT, 
-			Input_Type_Id INTEGER,
-			Inputs INTEGER, 
-		    Optional_Inputs INTEGER, 
-			Shortcut TEXT, 
-			FOREIGN KEY(Command_Type_Id) REFERENCES admin_command_types(Command_Type_Id), 
-			FOREIGN KEY(Category_Id) REFERENCES admin_categories(Category_Id), 
-			FOREIGN KEY(Input_Type_Id) REFERENCES admin_command_input_types(Input_Type_Id) 
-       );
 CREATE TABLE admin_config (
 		Id INTEGER PRIMARY KEY,
         Name TEXT, 
