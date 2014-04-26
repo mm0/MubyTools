@@ -23,13 +23,14 @@ include Command
 	def installed? 
 		super
 		@@binary = `which ls`
+		return String.try_convert(@@binary)
 	end
 end
 
 class Ls_list < Ls
 	def initialize
 		super
-		@ENABLED		=	true
+		init
 		@sort 			= 	100
 		@command		=	"ls -la" 
 		@title			=	"List Files" 
@@ -44,8 +45,8 @@ end
 class Ls_newest_file < Ls
 	def initialize
 		super
-		@ENABLED		=	true
-		@sort 			= 	100
+		init
+		@sort 			= 	200
 		@command		=	"ls -ld -rt {directory}/* | tail -1 "
 		@title			=	"List Newest filename (full path)"
 		@shortcut		=	"ls_newest_file_full_path"
