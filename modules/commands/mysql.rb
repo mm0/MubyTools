@@ -175,3 +175,6 @@ class MYSQL_retrieve_remote_db < MYSQL
 end
 
 #TODO: REPLICATE DB
+#TODO: SET ROOT Password
+#TODO: Change User Password
+
