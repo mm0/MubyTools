@@ -8,8 +8,8 @@ include Unix
 include Command
 
 	def initialize
-		init
 		@sort 			=	0
+		@ENABLED		=	false
 		@category		=	"Local CLI Commands"
 		@sub_category 	=	"Commands to be executed locally through a Shell"
 		@command_type	=	Sudo
@@ -20,18 +20,19 @@ include Command
 	end
 	def installed? 
 		super
-		@@binary = `which echo`
+		@@binary = `which echo`.chomp
+		return @@binary.length
 	end
 end
 
 class Add_to_local_hosts < Networking
 	def initialize
 		super
-		@ENABLED		= true
+		init
 		@sort 			= 100
 		@title			=	"Set Local /etc/hosts File for development"
 		@shortcut		=	"set_local_hosts"
-		@command		=	"echo -e '{hostname}\t{ip}' >> /etc/hosts"
+		@command		=	"echo -e '{ip}\t{hostname}' >> /etc/hosts"
 		@description	=	"Set Local /etc/hosts File for development"
 	end
     def get_input_array
@@ -50,8 +51,8 @@ end
 class Remove_from_local_hosts < Networking
 	def initialize
 		super
+		init
 		@title 			= "Remove entries from Local Hosts file"
-		@ENABLED		= true
 		@command		= "grep -v '{hostname}' /etc/hosts > /tmp/hosts; mv /tmp/hosts /etc"
 		@description 	= "Un-Set Local /etc/hosts File for development.  One input: string to search for"
 		@shortcut 		= "unset_local_hosts"
