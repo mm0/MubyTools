@@ -22,7 +22,7 @@ include Command
 	def installed? 
 		super
 		@@binary = `which vagrant`
-		return @@binary
+		return String.try_convert(@@binary)
 	end
 end
 
@@ -55,6 +55,9 @@ class Vagrant_pause < Vagrant
 		@description	=	"Suspend Vagrant Server "
 		@command		=	"vagrant suspend"
 	end
+  def has_inputs?
+    return false;
+  end
 end
 
 class Vagrant_stop < Vagrant
