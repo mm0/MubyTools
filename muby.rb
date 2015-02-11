@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require_relative "muby_app"    
 
 def clear
