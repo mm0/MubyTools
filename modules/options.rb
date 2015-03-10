@@ -11,6 +11,7 @@ class Muby_Options_Parser
 		@options.encoding = "utf8"
 		@options.transfer_type = :auto
 		@options.verbose = false
+    @options. banner = "Muby Command Line Tool Menu"
 		#@options = {}#OpenStruct.new
 		@@params = params
 		@version = "Muby Tools Version: 0.1"
@@ -23,7 +24,7 @@ class Muby_Options_Parser
 		#
 #puts String.color_matrix
 		OptionParser.new do |opts|
-			opts.banner = "Banner"#""Usage init.rb [options]"+"\n"+usage
+			opts.banner = @options.banner + "\n\t" + "Usage ruby muby.rb [options]"+"\n"
 
 			opts.separator ""
 			opts.separator "Common options:"
